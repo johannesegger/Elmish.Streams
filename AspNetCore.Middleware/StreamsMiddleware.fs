@@ -98,7 +98,7 @@ module Middleware =
 
                 // Stitch stream and subscribe
                 let msgs = options.Stream connectionId stream
-                do! msgs.RunAsync msgObserver
+                let! subscription = msgs.SubscribeAsync msgObserver
 
                 let buffer : byte [] = Array.zeroCreate 4096
                 while not finished do
@@ -115,6 +115,8 @@ module Middleware =
                         | None -> ()
                     else
                         closure <- result.CloseStatus.Value
+
+                do! subscription.DisposeAsync()
 
                 logger.LogInformation ("Closing WebSocket with ID: {ConnectionID}", connectionId)
                 try
